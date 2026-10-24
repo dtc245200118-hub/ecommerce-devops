@@ -1,6 +1,6 @@
 # Giải thích dashboard Grafana
 
-Dashboard **E-Commerce System Monitoring** (`https://localhost:3005/d/ecommerce-devops-auto`) được Grafana tự nạp từ file `grafana/dashboards/ecommerce-monitoring.json`. Dashboard có 6 panel, tự làm mới 10 giây một lần và hiển thị dữ liệu 15 phút gần nhất. Dữ liệu lấy từ Prometheus.
+Dashboard **E-Commerce System Monitoring** (`https://localhost:3005/d/ecommerce-devops-auto`) được Grafana tự nạp từ file `grafana/dashboards/ecommerce-monitoring.json`. Dashboard có 7 panel, tự làm mới 10 giây một lần và hiển thị dữ liệu 15 phút gần nhất. Panel 1-6 lấy dữ liệu từ Prometheus, panel 7 lấy log từ Loki.
 
 | # | Panel | Câu truy vấn | Giải thích |
 | :---: | :--- | :--- | :--- |
@@ -10,6 +10,7 @@ Dashboard **E-Commerce System Monitoring** (`https://localhost:3005/d/ecommerce-
 | 4 | MySQL Connections | `mysql_global_status_threads_connected` | Số kết nối đang mở tới MySQL. |
 | 5 | Container CPU (%) | `rate(container_cpu_usage_seconds_total{container_label_com_docker_compose_service=~"nginx\|backend\|mysql\|phpmyadmin"}[1m]) * 100` | Phần trăm CPU mà 4 container nginx, backend, mysql, phpmyadmin đang dùng. |
 | 6 | Container Memory | `container_memory_working_set_bytes{container_label_com_docker_compose_service=~"nginx\|backend\|mysql\|phpmyadmin"}` | Dung lượng RAM mà 4 container trên đang dùng. |
+| 7 | Application Logs | `{service=~"nginx\|backend"}` | Các dòng log mới nhất của Nginx và backend, lấy từ Loki. |
 
 ## 1. "_up" là gì
 
@@ -21,4 +22,4 @@ Dashboard **E-Commerce System Monitoring** (`https://localhost:3005/d/ecommerce-
 
 ## 3. "=~" và dấu "|" là gì
 
-`=~` là so khớp nhãn theo biểu thức chính quy (regex), còn dấu `|` trong regex nghĩa là "hoặc". Vì vậy `container_label_com_docker_compose_service=~"nginx|backend|mysql|phpmyadmin"` nghĩa là chỉ lấy các container có tên dịch vụ trong Docker Compose là nginx hoặc backend hoặc mysql hoặc phpmyadmin. Nhãn này do Docker Compose tự gắn vào mỗi container và cAdvisor đọc lại.
+`=~` là so khớp nhãn theo biểu thức chính quy (regex), còn dấu `|` trong regex nghĩa là "hoặc". Vì vậy `container_label_com_docker_compose_service=~"nginx|backend|mysql|phpmyadmin"` nghĩa là chỉ lấy các container có tên dịch vụ trong Docker Compose là nginx hoặc backend hoặc mysql hoặc phpmyadmin. Nhãn này do Docker Compose tự gắn vào mỗi container và cAdvisor đọc lại. Tương tự, `{service=~"nginx|backend"}` trong panel 7 là lấy log của Nginx hoặc backend.

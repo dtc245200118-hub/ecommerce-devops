@@ -499,10 +499,12 @@ async function loadUsers() {
 function renderSystem() {
   const host = location.hostname;
   const services = [
-    ["Grafana", "Dashboard giám sát container, web server, database", 3005, "Tài khoản Grafana"],
+    ["Grafana", "Dashboard giám sát container, web server, database và log", 3005, "Tài khoản Grafana"],
     ["Prometheus", "Thu thập và truy vấn metrics", 9095, "Chỉ mở trên máy local"],
     ["phpMyAdmin", "Quản trị cơ sở dữ liệu MySQL", 8081, "Tài khoản MySQL"],
-    ["cAdvisor", "Theo dõi CPU, RAM, network của container", 8080, "Chỉ mở trên máy local"]
+    ["cAdvisor", "Theo dõi CPU, RAM, network của container", 8080, "Chỉ mở trên máy local"],
+    // Loki không mở cổng riêng: log tập trung được tra cứu trong Grafana Explore
+    ["Loki", "Log tập trung của mọi container, tra cứu bằng LogQL", 3005, "Tài khoản Grafana", "/explore"]
   ];
 
   $("systemGrid").replaceChildren(

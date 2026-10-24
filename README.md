@@ -12,7 +12,7 @@
 | Năm học | 2025 – 2026 |
 | Repository | [github.com/dtc245200118-hub/ecommerce-devops](https://github.com/dtc245200118-hub/ecommerce-devops) |
 
-Website bán hàng **TechZone** (sản phẩm, giỏ hàng, đơn hàng) xây dựng bằng Node.js + MySQL, quản trị CSDL bằng phpMyAdmin, đặt sau Nginx reverse proxy với HTTPS và được giám sát bằng Prometheus + Grafana. Toàn bộ hệ thống triển khai bằng Docker Compose.
+Website bán hàng **TechZone** (sản phẩm, giỏ hàng, đơn hàng) xây dựng bằng Node.js + MySQL, quản trị CSDL bằng phpMyAdmin, đặt sau Nginx reverse proxy với HTTPS, được giám sát bằng Prometheus + Grafana và thu thập log tập trung bằng Loki + Promtail. Toàn bộ hệ thống triển khai bằng Docker Compose.
 
 ## Mục lục
 
@@ -22,9 +22,10 @@ Website bán hàng **TechZone** (sản phẩm, giỏ hàng, đơn hàng) xây d�
 4. [Commit 1 — Ứng dụng web, MySQL và phpMyAdmin](#4-commit-1--ứng-dụng-web-mysql-và-phpmyadmin)
 5. [Commit 1 — Nginx reverse proxy, HTTPS và security headers](#5-commit-1--nginx-reverse-proxy-https-và-security-headers)
 6. [Commit 2 — Giám sát với Prometheus và Grafana](#6-commit-2--giám-sát-với-prometheus-và-grafana)
-7. [Hardening](#7-hardening)
-8. [Kịch bản demo](#8-kịch-bản-demo)
-9. [Cấu trúc thư mục](#9-cấu-trúc-thư-mục)
+7. [Commit 3 — Log tập trung với Loki, Promtail và LogQL](#7-commit-3--log-tập-trung-với-loki-promtail-và-logql)
+8. [Hardening](#8-hardening)
+9. [Kịch bản demo](#9-kịch-bản-demo)
+10. [Cấu trúc thư mục](#10-cấu-trúc-thư-mục)
 
 ## 1. Đối chiếu yêu cầu đề bài
 
@@ -34,9 +35,49 @@ Website bán hàng **TechZone** (sản phẩm, giỏ hàng, đơn hàng) xây d�
 | 2 | Triển khai web + Database + công cụ quản lý DB | Node.js 24 (Express 5), MySQL 8.0, phpMyAdmin 5.2 | commit 1 |
 | 3 | Nginx reverse proxy, HTTPS tự ký, security headers | Nginx là cổng vào duy nhất; CA nội bộ tự sinh; TLS 1.2/1.3; HSTS, CSP… | commit 1 |
 | 4 | Prometheus + Grafana giám sát container, web server, database | cAdvisor, nginx-exporter, mysqld-exporter; dashboard Grafana tự nạp | commit 2 |
+| 5 | Loki + Promtail, truy vấn log bằng LogQL | Promtail gom log mọi container về Loki; truy vấn LogQL trong Grafana | commit 3 |
 | 6 | Hardening | Non-root, cô lập mạng, mật khẩu mạnh, security headers, phân quyền CSDL tối thiểu | mọi commit |
 
+Ba commit được gắn tag `v1.0-nginx`, `v2.0-monitoring`, `v3.0-logging`, tương ứng các mục Commit 1, 2, 3 bên dưới.
+
 ## 2. Kiến trúc hệ thống
+
+```mermaid
+flowchart LR
+    U([Trình duyệt]) -- "HTTPS" --> N[Nginx<br/>reverse proxy + TLS]
+
+    subgraph BN[backend_network]
+        B[Backend Node.js]
+        DB[(MySQL 8.0)]
+        PMA[phpMyAdmin]
+    end
+
+    subgraph MN[monitoring_network]
+        P[Prometheus]
+        G[Grafana]
+        C[cAdvisor]
+        NE[nginx-exporter]
+        L[Loki]
+        PT[Promtail]
+    end
+
+    ME[mysqld-exporter]
+
+    N --> B --> DB
+    N --> PMA --> DB
+    N --> G
+    N --> P
+    N --> C
+    ME --> DB
+    P --> NE --> N
+    P --> ME
+    P --> C
+    P --> L
+    P --> PT
+    PT -- log --> L
+    G --> P
+    G --> L
+```
 
 | Dịch vụ | Image | Vai trò |
 | :--- | :--- | :--- |
@@ -50,6 +91,8 @@ Website bán hàng **TechZone** (sản phẩm, giỏ hàng, đơn hàng) xây d�
 | `cadvisor` | `ghcr.io/google/cadvisor:0.57.0` | Metrics của container |
 | `nginx-exporter` | `nginx/nginx-prometheus-exporter:1.4.2` | Metrics của web server |
 | `mysql-exporter` | `prom/mysqld-exporter:v0.17.2` | Metrics của database |
+| `loki` | `grafana/loki:3.7.0` | Lưu trữ log tập trung |
+| `promtail` | `grafana/promtail:3.4.2` | Thu thập log các container, gửi về Loki |
 
 - **Nginx là cổng vào duy nhất** và chỉ mở cổng trên `127.0.0.1`; MySQL, backend và các dịch vụ khác không mở cổng ra ngoài.
 - Hệ thống tách thành hai mạng: `backend_network` (ứng dụng, CSDL) và `monitoring_network` (giám sát, log); chỉ Nginx và mysqld-exporter nối cả hai mạng.
@@ -78,7 +121,7 @@ docker compose up -d --build
 docker compose ps -a
 ```
 
-Kết quả đúng: 9 container ở trạng thái `Up` và `cert-init` ở trạng thái `Exited (0)` (container chỉ chạy một lần để sinh chứng chỉ).
+Kết quả đúng: 11 container ở trạng thái `Up` và `cert-init` ở trạng thái `Exited (0)` (container chỉ chạy một lần để sinh chứng chỉ).
 
 **Bước 4 — Tin cậy chứng chỉ HTTPS tự ký:** nhấp đúp `scripts\install-ca-cert.bat`, chọn **Yes** ở các hộp thoại, rồi mở lại trình duyệt. Nếu bỏ qua bước này, trình duyệt vẫn mở được trang nhưng hiện cảnh báo chứng chỉ.
 
@@ -91,6 +134,7 @@ Kết quả đúng: 9 container ở trạng thái `Up` và `cert-init` ở trạ
 | Grafana | [https://localhost:3005](https://localhost:3005) | `admin` / `Grafana@2026` |
 | Prometheus | [https://localhost:9095](https://localhost:9095) | Không cần (chỉ mở trên máy local) |
 | cAdvisor | [https://localhost:8080](https://localhost:8080) | Không cần (chỉ mở trên máy local) |
+| Loki | Grafana → *Explore* (datasource **Loki**) | Tài khoản Grafana |
 
 Tài khoản khách hàng mẫu: `an.nguyen@example.com`, `binh.tran@example.com`, `cuong.le@example.com`, `dung.pham@example.com` — mật khẩu `Customer@2026`.
 
@@ -144,7 +188,7 @@ Prometheus thu thập metrics mỗi 15 giây từ các nguồn:
 | Database MySQL (kết nối, truy vấn) | mysqld-exporter | `mysql` |
 | Chính Prometheus | Prometheus | `prometheus` |
 
-Grafana tự nạp datasource Prometheus và 1 dashboard **E-Commerce System Monitoring** ([https://localhost:3005/d/ecommerce-devops-auto](https://localhost:3005/d/ecommerce-devops-auto)) gồm 6 panel:
+Grafana tự nạp datasource Prometheus, Loki và 1 dashboard **E-Commerce System Monitoring** ([https://localhost:3005/d/ecommerce-devops-auto](https://localhost:3005/d/ecommerce-devops-auto)) gồm 7 panel:
 
 | Panel | Câu truy vấn | Ý nghĩa |
 | :--- | :--- | :--- |
@@ -154,10 +198,30 @@ Grafana tự nạp datasource Prometheus và 1 dashboard **E-Commerce System Mon
 | MySQL Connections | `mysql_global_status_threads_connected` | Số kết nối đang mở tới MySQL |
 | Container CPU (%) | `rate(container_cpu_usage_seconds_total{container_label_com_docker_compose_service=~"nginx\|backend\|mysql\|phpmyadmin"}[1m]) * 100` | % CPU của 4 container chính |
 | Container Memory | `container_memory_working_set_bytes{container_label_com_docker_compose_service=~"nginx\|backend\|mysql\|phpmyadmin"}` | RAM của 4 container chính |
+| Application Logs | `{service=~"nginx\|backend"}` (Loki) | Log mới nhất của Nginx và backend |
 
 Giải thích chi tiết từng câu truy vấn: [`docs/dashboard-queries.md`](docs/dashboard-queries.md). Cấu hình: [`prometheus/prometheus.yml`](prometheus/prometheus.yml), [`grafana/`](grafana).
 
-## 7. Hardening
+## 7. Commit 3 — Log tập trung với Loki, Promtail và LogQL
+
+- **Promtail** đọc log (stdout/stderr) của các container trong project qua Docker socket, gắn nhãn `job`, `service`, `container` rồi gửi về Loki.
+- **Loki** lưu trữ log, chỉ dùng nội bộ; Grafana kết nối tới Loki làm datasource thứ hai; log hiển thị ở panel **Application Logs** của dashboard và tra cứu được trong Grafana → *Explore* bằng các câu LogQL bên dưới.
+- Prometheus thu thập thêm metrics của Loki và Promtail (tổng cộng 6 target).
+- Backend ghi log đăng nhập (`[auth]`), thao tác của khách hàng (`[user]`) và thao tác quản trị (`[admin]`) để phục vụ tra cứu.
+
+Truy vấn trong Grafana → *Explore* → datasource **Loki**:
+
+| Mục đích | Truy vấn LogQL |
+| :--- | :--- |
+| Log của Nginx | `{job="ecommerce-docker", service="nginx"}` |
+| Đăng nhập thất bại | `{job="ecommerce-docker", service="backend"} \|= "[auth] login failed"` |
+| Thao tác của khách hàng (đăng ký, đặt/hủy đơn, đăng xuất) | `{job="ecommerce-docker", service="backend"} \|= "[user]"` |
+| Thao tác của quản trị viên | `{job="ecommerce-docker", service="backend"} \|= "[admin]"` |
+| Số dòng log mỗi dịch vụ trong 5 phút | `sum by (service) (count_over_time({job="ecommerce-docker"}[5m]))` |
+
+Cấu hình: [`loki/loki-config.yml`](loki/loki-config.yml), [`promtail/promtail-config.yml`](promtail/promtail-config.yml). Thêm truy vấn: [`docs/logql-queries.md`](docs/logql-queries.md).
+
+## 8. Hardening
 
 | Biện pháp | Thực hiện | Cách kiểm tra |
 | :--- | :--- | :--- |
@@ -170,7 +234,7 @@ Giải thích chi tiết từng câu truy vấn: [`docs/dashboard-queries.md`](d
 | HTTPS và security headers | Xem mục Commit 1 | `curl.exe -kI https://localhost` |
 | Bảo vệ ứng dụng | Cookie phiên `HttpOnly`, `Secure`, `SameSite=Strict`; kiểm tra quyền phía server; chống CSRF, SQL injection; giới hạn số lần đăng nhập | Khách hàng gọi `/api/admin/stats` → `403` |
 
-## 8. Kịch bản demo
+## 9. Kịch bản demo
 
 | # | Nội dung | Cách làm | Kết quả mong đợi |
 | :---: | :--- | :--- | :--- |
@@ -183,10 +247,11 @@ Giải thích chi tiết từng câu truy vấn: [`docs/dashboard-queries.md`](d
 | 7 | Quyền tối thiểu | Đăng nhập `ecommerce_app` / `MYSQL_PASSWORD`, chạy `CREATE TABLE ecommerce_db.t(id INT);` | Lỗi `#1142` |
 | 8 | Trigger | Đăng nhập `root`, chạy `UPDATE ecommerce_db.orders SET status='pending' WHERE id=1;` | Lỗi `#1644` (đơn đã hoàn thành không được sửa) |
 | 9 | Non-root | `docker compose exec backend whoami` | `node` |
-| 10 | Prometheus | Mở `https://localhost:9095/targets` | 4 target đều **UP** |
-| 11 | Grafana | Mở dashboard **E-Commerce System Monitoring** (`https://localhost:3005/d/ecommerce-devops-auto`) | 6 panel đều có dữ liệu; Nginx/MySQL Status hiện `UP` |
+| 10 | Prometheus | Mở `https://localhost:9095/targets` | 6 target đều **UP** |
+| 11 | Grafana | Mở dashboard **E-Commerce System Monitoring** (`https://localhost:3005/d/ecommerce-devops-auto`) | 7 panel đều có dữ liệu; Nginx/MySQL Status hiện `UP` |
+| 12 | LogQL | Đăng nhập sai 1 lần, chạy truy vấn "Đăng nhập thất bại" | Thấy dòng `[auth] login failed` |
 
-## 9. Cấu trúc thư mục
+## 10. Cấu trúc thư mục
 
 ```text
 ecommerce-devops/
@@ -198,6 +263,8 @@ ecommerce-devops/
 ├── nginx/                 # Cấu hình Nginx, HTTPS và security headers
 ├── prometheus/            # Cấu hình thu thập metrics
 ├── grafana/               # Datasource và dashboard tự nạp
+├── loki/                  # Cấu hình lưu trữ log
+├── promtail/              # Cấu hình thu thập log
 ├── scripts/               # Sinh chứng chỉ, cài CA, sao lưu/khôi phục CSDL
-└── docs/                  # Tài liệu SQL
+└── docs/                  # Tài liệu SQL và LogQL
 ```

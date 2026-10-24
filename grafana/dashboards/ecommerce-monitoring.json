@@ -353,6 +353,39 @@
           "mode": "single"
         }
       }
+    },
+    {
+      "id": 7,
+      "type": "logs",
+      "title": "Application Logs",
+      "description": "LogQL query {service=~\"nginx|backend\"} on Loki: the latest log lines of the Nginx and backend containers.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "expr": "{service=~\"nginx|backend\"}",
+          "queryType": "range"
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending",
+        "enableLogDetails": true
+      }
     }
   ]
 }

@@ -101,7 +101,7 @@ router.post("/", async (req, res, next) => {
       return { id: orderResult.insertId, total: totalAmount };
     });
 
-    console.log(`[order] created order_id=${order.id} user_id=${req.user.id} total=${order.total}`);
+    console.log(`[user] order created order_id=${order.id} user_id=${req.user.id} total=${order.total}`);
 
     res.status(201).json({
       success: true,
@@ -123,6 +123,7 @@ router.post("/:id/cancel", async (req, res, next) => {
 
   try {
     const result = await changeStatus(orderId, "cancelled", req.user.id);
+    console.log(`[user] order cancelled order_id=${orderId} user_id=${req.user.id}`);
     res.json({ success: true, data: result });
   } catch (error) {
     next(error);

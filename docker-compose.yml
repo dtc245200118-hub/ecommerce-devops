@@ -209,6 +209,37 @@ services:
       - monitoring_network
     depends_on:
       - prometheus
+      - loki
+    security_opt:
+      - no-new-privileges:true
+
+  # Lưu trữ log tập trung
+  loki:
+    image: grafana/loki:3.7.0
+    restart: unless-stopped
+    command:
+      - -config.file=/etc/loki/loki-config.yml
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/loki-config.yml:ro
+      - loki_data:/loki
+    networks:
+      - monitoring_network
+    security_opt:
+      - no-new-privileges:true
+
+  # Thu thập log các container gửi về Loki
+  promtail:
+    image: grafana/promtail:3.4.2
+    restart: unless-stopped
+    command:
+      - -config.file=/etc/promtail/config.yml
+    volumes:
+      - ./promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - monitoring_network
+    depends_on:
+      - loki
     security_opt:
       - no-new-privileges:true
 
@@ -216,6 +247,7 @@ volumes:
   mysql_data:
   prometheus_data:
   grafana_data:
+  loki_data:
 
 networks:
   backend_network:

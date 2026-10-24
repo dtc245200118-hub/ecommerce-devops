@@ -63,6 +63,7 @@ router.post("/register", registerLimiter, async (req, res, next) => {
     );
 
     const user = { id: result.insertId, name: name.trim(), email: email.trim().toLowerCase(), role: "customer" };
+    console.log(`[user] registered user_id=${user.id} ip=${req.ip}`);
     setSessionCookie(res, user);
     res.status(201).json({ success: true, user: publicUser(user) });
   } catch (error) {
@@ -107,6 +108,7 @@ router.post("/login", loginLimiter, async (req, res, next) => {
 
 // POST /api/auth/logout - Đăng xuất
 router.post("/logout", (req, res) => {
+  if (req.user) console.log(`[user] logout user_id=${req.user.id} role=${req.user.role} ip=${req.ip}`);
   clearSessionCookie(res);
   res.json({ success: true });
 });

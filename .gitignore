@@ -19,6 +19,7 @@ Thumbs.db
 mysql_data/
 grafana_data/
 prometheus_data/
+loki_data/
 # Chứng chỉ HTTPS sinh tự động - không commit khóa bí mật
 nginx/certs/
 
