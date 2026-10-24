@@ -28,6 +28,7 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE:?Required}
       MYSQL_USER: ${MYSQL_USER:?Required}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Required}
+      MYSQL_EXPORTER_PASSWORD: ${MYSQL_EXPORTER_PASSWORD:?Required}
       MYSQL_REPORT_PASSWORD: ${MYSQL_REPORT_PASSWORD:?Required}
     volumes:
       - mysql_data:/var/lib/mysql
@@ -97,13 +98,17 @@ services:
     ports:
       - "127.0.0.1:80:80"       # HTTP -> chuyển sang HTTPS
       - "127.0.0.1:443:443"     # Website
+      - "127.0.0.1:3005:3005"   # Grafana
+      - "127.0.0.1:9095:9095"   # Prometheus
       - "127.0.0.1:8081:8081"   # phpMyAdmin
+      - "127.0.0.1:8080:8080"   # cAdvisor
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/snippets:/etc/nginx/snippets:ro
       - ./nginx/certs:/etc/nginx/certs:ro
     networks:
       - backend_network
+      - monitoring_network
     depends_on:
       cert-init:
         condition: service_completed_successfully
@@ -112,8 +117,106 @@ services:
     security_opt:
       - no-new-privileges:true
 
+  # Metrics của Nginx
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:1.4.2
+    restart: unless-stopped
+    command:
+      - --nginx.scrape-uri=http://nginx:8088/nginx_status
+    networks:
+      - monitoring_network
+    depends_on:
+      - nginx
+    security_opt:
+      - no-new-privileges:true
+
+  # Metrics của MySQL
+  mysql-exporter:
+    image: prom/mysqld-exporter:v0.17.2
+    restart: unless-stopped
+    environment:
+      MYSQLD_EXPORTER_PASSWORD: ${MYSQL_EXPORTER_PASSWORD:?Required}
+    command:
+      - --mysqld.address=mysql:3306
+      - --mysqld.username=exporter
+    networks:
+      - backend_network
+      - monitoring_network
+    depends_on:
+      mysql:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+
+  # Metrics của các container
+  cadvisor:
+    image: ghcr.io/google/cadvisor:0.57.0
+    restart: unless-stopped
+    privileged: true
+    command:
+      - --housekeeping_interval=15s
+      - --docker_only=true
+      - --disable_metrics=disk,referenced_memory
+      - --allow_dynamic_housekeeping=false
+    volumes:
+      - /:/rootfs:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+    networks:
+      - monitoring_network
+
+  # Thu thập metrics
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.external-url=https://localhost:9095/
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - monitoring_network
+    depends_on:
+      - nginx-exporter
+      - mysql-exporter
+      - cadvisor
+    security_opt:
+      - no-new-privileges:true
+
+  # Dashboard giám sát
+  grafana:
+    image: grafana/grafana:12.1.0
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Required}
+      GF_SERVER_ROOT_URL: https://localhost:3005/
+      GF_SECURITY_COOKIE_SECURE: "true"
+      GF_SECURITY_COOKIE_SAMESITE: strict
+      GF_SECURITY_DISABLE_GRAVATAR: "true"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    networks:
+      - monitoring_network
+    depends_on:
+      - prometheus
+    security_opt:
+      - no-new-privileges:true
+
 volumes:
   mysql_data:
+  prometheus_data:
+  grafana_data:
 
 networks:
   backend_network:
+  monitoring_network:

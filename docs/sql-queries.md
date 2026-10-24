@@ -9,6 +9,7 @@ Toàn bộ script nằm trong thư mục `database/` và được MySQL chạy *
 | `03-procedures-triggers.sql` | 3 stored procedure + 3 trigger |
 | `04-seed-data.sql` | Dữ liệu mẫu: 6 danh mục, 14 sản phẩm, 4 khách hàng, 12 đơn hàng |
 | `05-permissions.sql` | Phân quyền tối thiểu theo **từng bảng** cho `ecommerce_app` |
+| `06-create-exporter.sh` | Tài khoản `exporter` cho Prometheus (chỉ đọc metrics) |
 | `07-create-report-user.sh` | Tài khoản `report_user` chỉ đọc view báo cáo |
 
 > Script chỉ chạy khi volume `mysql_data` còn trống. Muốn chạy lại: `docker compose down -v` rồi `docker compose up -d`.
@@ -38,6 +39,7 @@ Toàn bộ script nằm trong thư mục `database/` và được MySQL chạy *
 | :--- | :--- | :--- |
 | `root` | Quản trị (chỉ dùng khi cần) | Toàn quyền, mật khẩu trong `.env` |
 | `ecommerce_app` | Backend Node.js | Chỉ DML cần thiết theo từng bảng, **không DDL, không DELETE đơn hàng, không UPDATE users** |
+| `exporter` | mysqld-exporter | `SELECT, PROCESS, REPLICATION CLIENT` |
 | `report_user` | Xem báo cáo trong phpMyAdmin | Chỉ `SELECT` trên **view** và `EXECUTE` procedure báo cáo, **không đọc được bảng `users`** |
 
 Chi tiết quyền của `ecommerce_app`:
