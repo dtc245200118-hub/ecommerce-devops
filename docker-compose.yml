@@ -1,0 +1,119 @@
+name: ecommerce-devops
+
+services:
+  # Sinh chứng chỉ HTTPS tự ký, chạy 1 lần rồi thoát
+  cert-init:
+    image: mysql:8.0
+    entrypoint: ["bash", "/generate-certs.sh"]
+    environment:
+      CERT_DIR: /certs
+    volumes:
+      - ./scripts/generate-certs.sh:/generate-certs.sh:ro
+      - ./nginx/certs:/certs
+    tmpfs:
+      - /var/lib/mysql
+    network_mode: none
+    security_opt:
+      - no-new-privileges:true
+
+  # Cơ sở dữ liệu
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Required}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:?Required}
+      MYSQL_USER: ${MYSQL_USER:?Required}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Required}
+      MYSQL_REPORT_PASSWORD: ${MYSQL_REPORT_PASSWORD:?Required}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database:/docker-entrypoint-initdb.d:ro
+    networks:
+      - backend_network
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - MYSQL_PWD="$${MYSQL_ROOT_PASSWORD}" mysqladmin ping -h 127.0.0.1 -u root --silent
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    security_opt:
+      - no-new-privileges:true
+
+  # Công cụ quản trị CSDL
+  phpmyadmin:
+    image: phpmyadmin:5.2-apache
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_ABSOLUTE_URI: https://localhost:8081/
+      HIDE_PHP_VERSION: "true"
+      UPLOAD_LIMIT: 64M
+    networks:
+      - backend_network
+    depends_on:
+      mysql:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+
+  # Website (Node.js)
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: mysql
+      DB_PORT: 3306
+      MYSQL_DATABASE: ${MYSQL_DATABASE:?Required}
+      MYSQL_USER: ${MYSQL_USER:?Required}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Required}
+      SESSION_SECRET: ${SESSION_SECRET:?Required}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?Required}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Required}
+    volumes:
+      - ./frontend:/frontend:ro
+    networks:
+      - backend_network
+    depends_on:
+      mysql:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+
+  # Reverse proxy, cổng vào duy nhất của hệ thống
+  nginx:
+    image: nginx:stable-alpine
+    container_name: ecommerce_nginx
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:80:80"       # HTTP -> chuyển sang HTTPS
+      - "127.0.0.1:443:443"     # Website
+      - "127.0.0.1:8081:8081"   # phpMyAdmin
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/snippets:/etc/nginx/snippets:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+    networks:
+      - backend_network
+    depends_on:
+      cert-init:
+        condition: service_completed_successfully
+      backend:
+        condition: service_started
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  mysql_data:
+
+networks:
+  backend_network:

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#4f46e5">
+  <title>Đăng nhập - TechZone</title>
+  <link rel="icon" href="/images/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/common.js" defer></script>
+  <script src="/js/login.js" defer></script>
+</head>
+<body class="auth-page">
+  <div class="auth-layout">
+    <aside class="auth-aside">
+      <a href="/" class="logo logo-light">
+        <img src="/images/logo.svg" alt="" width="36" height="36">
+        <span>Tech<strong>Zone</strong></span>
+      </a>
+      <div class="auth-aside-body">
+        <h2>Mua sắm công nghệ an toàn, nhanh chóng</h2>
+        <ul class="auth-points">
+          <li>Kết nối được mã hóa HTTPS (TLS 1.2/1.3)</li>
+          <li>Mật khẩu được băm bằng scrypt, không lưu dạng rõ</li>
+          <li>Phiên đăng nhập bảo vệ bằng cookie HttpOnly, Secure, SameSite</li>
+          <li>Theo dõi trạng thái đơn hàng mọi lúc</li>
+        </ul>
+      </div>
+      <img src="/images/products/laptop.svg" alt="" class="auth-aside-img">
+    </aside>
+
+    <main class="auth-main">
+      <div class="auth-card">
+        <a href="/" class="link-btn">← Về cửa hàng</a>
+
+        <div class="tabs" role="tablist">
+          <button type="button" role="tab" id="tabLogin" class="tab" aria-selected="true" aria-controls="loginForm">Đăng nhập</button>
+          <button type="button" role="tab" id="tabRegister" class="tab" aria-selected="false" aria-controls="registerForm">Đăng ký</button>
+        </div>
+
+        <!-- Đăng nhập -->
+        <form id="loginForm" class="auth-form" novalidate>
+          <div>
+            <h1>Chào mừng trở lại</h1>
+            <p class="muted">Đăng nhập để mua hàng và theo dõi đơn mua.</p>
+          </div>
+
+          <div class="field">
+            <label for="loginEmail">Email</label>
+            <input type="email" id="loginEmail" required maxlength="150" autocomplete="username" placeholder="email@example.com">
+          </div>
+
+          <div class="field">
+            <label for="loginPassword">Mật khẩu</label>
+            <div class="password-field">
+              <input type="password" id="loginPassword" required maxlength="72" autocomplete="current-password" placeholder="••••••••">
+              <button type="button" class="toggle-password" data-target="loginPassword">Hiện</button>
+            </div>
+          </div>
+
+          <p id="loginError" class="form-error" role="alert"></p>
+          <button type="submit" class="btn btn-primary btn-block btn-lg">Đăng nhập</button>
+        </form>
+
+        <!-- Đăng ký -->
+        <form id="registerForm" class="auth-form" novalidate hidden>
+          <div>
+            <h1>Tạo tài khoản</h1>
+            <p class="muted">Chỉ mất 30 giây để bắt đầu mua sắm.</p>
+          </div>
+
+          <div class="field">
+            <label for="registerName">Họ và tên</label>
+            <input type="text" id="registerName" required minlength="2" maxlength="100" autocomplete="name" placeholder="Nguyễn Văn A">
+          </div>
+
+          <div class="field">
+            <label for="registerEmail">Email</label>
+            <input type="email" id="registerEmail" required maxlength="150" autocomplete="email" placeholder="email@example.com">
+          </div>
+
+          <div class="field">
+            <label for="registerPassword">Mật khẩu</label>
+            <div class="password-field">
+              <input type="password" id="registerPassword" required minlength="8" maxlength="72" autocomplete="new-password" placeholder="Tối thiểu 8 ký tự">
+              <button type="button" class="toggle-password" data-target="registerPassword">Hiện</button>
+            </div>
+            <div class="strength" aria-hidden="true"><span id="strengthBar"></span></div>
+            <ul class="password-rules" id="passwordRules">
+              <li data-rule="length">Ít nhất 8 ký tự</li>
+              <li data-rule="upper">Có chữ hoa</li>
+              <li data-rule="lower">Có chữ thường</li>
+              <li data-rule="digit">Có chữ số</li>
+            </ul>
+          </div>
+
+          <div class="field">
+            <label for="registerConfirm">Nhập lại mật khẩu</label>
+            <input type="password" id="registerConfirm" required maxlength="72" autocomplete="new-password" placeholder="••••••••">
+          </div>
+
+          <p id="registerError" class="form-error" role="alert"></p>
+          <button type="submit" class="btn btn-primary btn-block btn-lg">Tạo tài khoản</button>
+        </form>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

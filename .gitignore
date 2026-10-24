@@ -1,0 +1,24 @@
+node_modules/
+.env
+.env.*
+!.env.example
+
+*.log
+logs/
+
+dist/
+build/
+coverage/
+
+.vscode/
+.idea/
+
+.DS_Store
+Thumbs.db
+
+mysql_data/
+# Chứng chỉ HTTPS sinh tự động - không commit khóa bí mật
+nginx/certs/
+
+# Bản sao lưu CSDL
+backups/

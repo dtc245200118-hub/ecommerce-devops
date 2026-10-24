@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#4f46e5">
+  <title>Đơn mua của tôi - TechZone</title>
+  <link rel="icon" href="/images/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/common.js" defer></script>
+  <script src="/js/orders.js" defer></script>
+</head>
+<body>
+  <header class="header">
+    <div class="container header-inner">
+      <a href="/" class="logo" aria-label="TechZone - Trang chủ">
+        <img src="/images/logo.svg" alt="" width="36" height="36">
+        <span>Tech<strong>Zone</strong></span>
+      </a>
+      <div class="header-actions">
+        <a href="/" class="btn btn-ghost">← Tiếp tục mua sắm</a>
+        <div id="accountArea" class="account-area"></div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container page">
+    <div class="page-head">
+      <div>
+        <h1>Đơn mua của tôi</h1>
+        <p class="muted" id="ordersSummary">Đang tải đơn hàng...</p>
+      </div>
+    </div>
+
+    <div id="statusFilter" class="chips" role="tablist" aria-label="Lọc theo trạng thái"></div>
+
+    <div id="orderList" class="order-list"></div>
+
+    <div id="ordersEmpty" class="empty" hidden>
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>
+      <h3>Chưa có đơn hàng nào</h3>
+      <p>Hãy chọn cho mình một món đồ công nghệ ưng ý nhé.</p>
+      <a href="/" class="btn btn-primary">Mua sắm ngay</a>
+    </div>
+  </main>
+
+  <div id="toastContainer" class="toasts" aria-live="polite"></div>
+</body>
+</html>

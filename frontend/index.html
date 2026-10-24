@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="TechZone - Cửa hàng công nghệ chính hãng: laptop, điện thoại, tablet, âm thanh và phụ kiện.">
+  <meta name="theme-color" content="#4f46e5">
+  <title>TechZone - Cửa hàng công nghệ chính hãng</title>
+  <link rel="icon" href="/images/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/common.js" defer></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+  <!-- Thanh thông báo -->
+  <div class="topbar">
+    <div class="container topbar-inner">
+      <span>Miễn phí vận chuyển toàn quốc · Bảo hành chính hãng</span>
+      <span class="topbar-right">Hotline: <strong>1900 6868</strong></span>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="header" id="top">
+    <div class="container header-inner">
+      <a href="#top" class="logo" aria-label="TechZone - Trang chủ">
+        <img src="/images/logo.svg" alt="" width="36" height="36">
+        <span>Tech<strong>Zone</strong></span>
+      </a>
+
+      <form class="search" id="searchForm" role="search">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search" id="searchInput" placeholder="Bạn cần tìm sản phẩm gì?" aria-label="Tìm kiếm sản phẩm" autocomplete="off">
+      </form>
+
+      <div class="header-actions">
+      <div id="accountArea" class="account-area"></div>
+
+      <button id="cartButton" class="cart-button" type="button" aria-label="Mở giỏ hàng">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6"/><circle cx="10" cy="20.5" r="1.2"/><circle cx="17" cy="20.5" r="1.2"/></svg>
+        <span class="cart-label">Giỏ hàng</span>
+        <span id="cartCount" class="badge" aria-live="polite">0</span>
+      </button>
+      </div>
+    </div>
+  </header>
+
+  <div id="adminNotice" class="admin-notice" hidden>
+    <div class="container">
+      Bạn đang xem cửa hàng với quyền <strong>Quản trị viên</strong>. Tài khoản admin không thể mua hàng.
+      <a href="/admin.html">Về trang quản trị →</a>
+    </div>
+  </div>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container hero-inner">
+        <div class="hero-text">
+          <span class="eyebrow">Mùa sale công nghệ 2026</span>
+          <h1>Công nghệ chính hãng,<br><span class="highlight">giá tốt mỗi ngày</span></h1>
+          <p>Laptop, điện thoại, tablet và phụ kiện từ các thương hiệu hàng đầu. Bảo hành chính hãng, đổi trả trong 30 ngày.</p>
+          <div class="hero-actions">
+            <a href="#products" class="btn btn-primary btn-lg">Mua sắm ngay</a>
+            <a href="#features" class="btn btn-ghost btn-lg">Vì sao chọn chúng tôi</a>
+          </div>
+          <dl class="hero-stats">
+            <div><dt>10K+</dt><dd>Khách hàng</dd></div>
+            <div><dt>100%</dt><dd>Chính hãng</dd></div>
+            <div><dt>24/7</dt><dd>Hỗ trợ</dd></div>
+          </dl>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="hero-blob"></div>
+          <img src="/images/products/laptop.svg" alt="" class="hero-img">
+          <div class="hero-chip hero-chip-1">
+            <strong>-15%</strong><span>Laptop</span>
+          </div>
+          <div class="hero-chip hero-chip-2">
+            <strong>Freeship</strong><span>Toàn quốc</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cam kết -->
+    <section class="features" id="features">
+      <div class="container features-grid">
+        <div class="feature">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg>
+          <div><h3>Giao hàng nhanh</h3><p>Nhận hàng trong 2 giờ nội thành</p></div>
+        </div>
+        <div class="feature">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg>
+          <div><h3>Bảo hành chính hãng</h3><p>Lên đến 24 tháng</p></div>
+        </div>
+        <div class="feature">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+          <div><h3>Đổi trả 30 ngày</h3><p>Miễn phí, không cần lý do</p></div>
+        </div>
+        <div class="feature">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h3"/></svg>
+          <div><h3>Thanh toán an toàn</h3><p>COD, thẻ, chuyển khoản</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sản phẩm -->
+    <section class="products" id="products">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2>Sản phẩm nổi bật</h2>
+            <p id="message" class="muted" role="status">Đang tải sản phẩm...</p>
+          </div>
+          <label class="sort">
+            <span>Sắp xếp</span>
+            <select id="sortSelect">
+              <option value="newest">Mới nhất</option>
+              <option value="price-asc">Giá thấp → cao</option>
+              <option value="price-desc">Giá cao → thấp</option>
+              <option value="name">Tên A → Z</option>
+            </select>
+          </label>
+        </div>
+
+        <div id="categoryFilter" class="chips" role="tablist" aria-label="Danh mục sản phẩm"></div>
+
+        <div id="productList" class="product-grid" aria-live="polite"></div>
+
+        <div id="emptyState" class="empty" hidden>
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5M8.5 11h5"/></svg>
+          <h3>Không tìm thấy sản phẩm</h3>
+          <p>Thử từ khóa khác hoặc chọn danh mục khác nhé.</p>
+          <button type="button" id="resetFilter" class="btn btn-ghost">Xóa bộ lọc</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Banner đăng ký -->
+    <section class="newsletter">
+      <div class="container newsletter-inner">
+        <div>
+          <h2>Nhận ưu đãi độc quyền</h2>
+          <p>Đăng ký để nhận mã giảm giá 500.000 ₫ cho đơn hàng đầu tiên.</p>
+        </div>
+        <form id="newsletterForm" class="newsletter-form">
+          <input type="email" required placeholder="Email của bạn" aria-label="Email nhận tin">
+          <button type="submit" class="btn btn-light">Đăng ký</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="#top" class="logo logo-light">
+          <img src="/images/logo.svg" alt="" width="32" height="32">
+          <span>Tech<strong>Zone</strong></span>
+        </a>
+        <p>Hệ thống bán lẻ thiết bị công nghệ chính hãng. Đồ án môn Triển khai và Quản trị Hệ thống Phần mềm.</p>
+      </div>
+      <div>
+        <h4>Hỗ trợ khách hàng</h4>
+        <ul>
+          <li>Chính sách bảo hành</li>
+          <li>Chính sách đổi trả</li>
+          <li>Hướng dẫn mua hàng</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Liên hệ</h4>
+        <ul>
+          <li>Hotline: 1900 6868</li>
+          <li>Email: support@techzone.local</li>
+          <li>Giờ làm việc: 8:00 - 22:00</li>
+        </ul>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span>© 2026 TechZone. Triển khai bằng Docker Compose · Nginx · MySQL.</span>
+    </div>
+  </footer>
+
+  <!-- Giỏ hàng dạng ngăn kéo -->
+  <div id="drawerOverlay" class="overlay" hidden></div>
+  <aside id="cartDrawer" class="drawer" aria-labelledby="drawerTitle" aria-hidden="true" inert>
+    <div class="drawer-head">
+      <h2 id="drawerTitle">Giỏ hàng của bạn</h2>
+      <button id="closeCart" type="button" class="icon-btn" aria-label="Đóng giỏ hàng">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+
+    <!-- Bước 1: giỏ hàng -->
+    <div id="cartView" class="drawer-body">
+      <div id="cartItems" class="cart-items"></div>
+      <div id="cartEmpty" class="cart-empty">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6"/><circle cx="10" cy="20.5" r="1.2"/><circle cx="17" cy="20.5" r="1.2"/></svg>
+        <p>Giỏ hàng đang trống</p>
+        <button type="button" class="btn btn-primary" id="continueShopping">Tiếp tục mua sắm</button>
+      </div>
+    </div>
+
+    <!-- Bước 2: thông tin đặt hàng -->
+    <form id="checkoutForm" class="drawer-body checkout" hidden novalidate>
+      <button type="button" id="backToCart" class="link-btn">← Quay lại giỏ hàng</button>
+      <h3>Thông tin đặt hàng</h3>
+
+      <div class="field">
+        <label for="customerName">Họ và tên người nhận</label>
+        <input type="text" id="customerName" required minlength="2" maxlength="100" placeholder="Nguyễn Văn A" autocomplete="name">
+      </div>
+
+      <div class="field">
+        <label for="customerEmail">Email tài khoản</label>
+        <input type="email" id="customerEmail" readonly tabindex="-1">
+      </div>
+
+      <div class="field">
+        <label for="customerPhone">Số điện thoại</label>
+        <input type="tel" id="customerPhone" required pattern="(\+84|0)[0-9]{9,10}" maxlength="13" placeholder="0901234567" autocomplete="tel">
+      </div>
+
+      <div class="field">
+        <label for="customerAddress">Địa chỉ giao hàng</label>
+        <textarea id="customerAddress" required minlength="5" maxlength="255" rows="3" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành" autocomplete="street-address"></textarea>
+      </div>
+
+      <p id="checkoutMessage" class="form-error" role="alert"></p>
+    </form>
+
+    <!-- Bước 3: thành công -->
+    <div id="successView" class="drawer-body success" hidden>
+      <div class="success-icon">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>
+      </div>
+      <h3>Đặt hàng thành công!</h3>
+      <p>Mã đơn hàng của bạn: <strong id="orderId"></strong></p>
+      <p class="muted">Chúng tôi sẽ liên hệ xác nhận đơn hàng qua email trong thời gian sớm nhất.</p>
+      <a href="/orders.html" class="btn btn-primary btn-block">Xem đơn mua của tôi</a>
+      <button type="button" id="doneButton" class="btn btn-ghost btn-block">Tiếp tục mua sắm</button>
+    </div>
+
+    <div id="drawerFoot" class="drawer-foot" hidden>
+      <div class="summary-row"><span>Tạm tính</span><span id="cartSubtotal">0 ₫</span></div>
+      <div class="summary-row"><span>Phí vận chuyển</span><span class="free-ship">Miễn phí</span></div>
+      <div class="summary-row total"><span>Tổng cộng</span><strong id="cartTotal">0 ₫</strong></div>
+      <button type="button" id="checkoutButton" class="btn btn-primary btn-block btn-lg">Tiến hành đặt hàng</button>
+    </div>
+  </aside>
+
+  <div id="toastContainer" class="toasts" aria-live="polite"></div>
+</body>
+</html>

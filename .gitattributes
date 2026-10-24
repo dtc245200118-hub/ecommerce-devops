@@ -1,0 +1,4 @@
+# Script shell chạy trong container Linux -> luôn dùng LF (tránh lỗi \r trên Windows)
+*.sh text eol=lf
+*.conf text eol=lf
+*.yml text eol=lf

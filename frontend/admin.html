@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#4f46e5">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Quản trị - TechZone</title>
+  <link rel="icon" href="/images/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/common.js" defer></script>
+  <script src="/js/admin.js" defer></script>
+</head>
+<body class="admin-page">
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <a href="/admin.html" class="logo logo-light">
+        <img src="/images/logo.svg" alt="" width="32" height="32">
+        <span>Tech<strong>Zone</strong></span>
+      </a>
+      <span class="sidebar-caption">Bảng quản trị</span>
+
+      <nav class="side-nav" aria-label="Quản trị">
+        <button type="button" class="side-link" data-view="dashboard" aria-current="page">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v9H4zM13 4h7v5h-7zM13 11h7v9h-7zM4 15h7v5H4z"/></svg>
+          Tổng quan
+        </button>
+        <button type="button" class="side-link" data-view="products">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>
+          Sản phẩm
+        </button>
+        <button type="button" class="side-link" data-view="orders">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5h10M9 12h10M9 19h10M4 5h.01M4 12h.01M4 19h.01"/></svg>
+          Đơn hàng <span id="pendingBadge" class="badge" hidden>0</span>
+        </button>
+        <button type="button" class="side-link" data-view="users">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21a6 6 0 0 0-12 0M11 13a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM21 21a5 5 0 0 0-4-4.9M16 5.1a4 4 0 0 1 0 7.8"/></svg>
+          Khách hàng
+        </button>
+        <button type="button" class="side-link" data-view="system">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>
+          Giám sát hệ thống
+        </button>
+      </nav>
+
+      <a href="/" class="side-link side-bottom">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10 12 3l9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg>
+        Xem cửa hàng
+      </a>
+    </aside>
+
+    <div class="admin-main">
+      <header class="admin-top">
+        <h1 id="viewTitle">Tổng quan</h1>
+        <div id="accountArea" class="account-area"></div>
+      </header>
+
+      <!-- ============ Tổng quan ============ -->
+      <section id="view-dashboard" class="view">
+        <div id="statGrid" class="stat-grid"></div>
+
+        <div class="panel-grid">
+          <div class="panel">
+            <div class="panel-head"><h2>Doanh thu 7 ngày gần nhất</h2><span class="muted panel-note">Nguồn: VIEW v_daily_revenue</span></div>
+            <div id="revenueChart" class="bar-chart"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h2>Doanh thu theo danh mục</h2></div>
+            <div class="table-wrap"><table class="table" id="categoryTable"></table></div>
+          </div>
+        </div>
+
+        <div class="panel-grid">
+          <div class="panel">
+            <div class="panel-head"><h2>Đơn hàng gần đây</h2><button type="button" class="link-btn" data-goto="orders">Xem tất cả →</button></div>
+            <div class="table-wrap"><table class="table" id="recentOrders"></table></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h2>Sản phẩm bán chạy</h2></div>
+            <ol id="topProducts" class="top-list"></ol>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ Sản phẩm ============ -->
+      <section id="view-products" class="view" hidden>
+        <div class="toolbar">
+          <input type="search" id="productSearch" class="input" placeholder="Tìm sản phẩm..." aria-label="Tìm sản phẩm">
+          <button type="button" id="addProduct" class="btn btn-primary">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            Thêm sản phẩm
+          </button>
+        </div>
+        <div class="panel">
+          <div class="table-wrap"><table class="table" id="productTable"></table></div>
+        </div>
+      </section>
+
+      <!-- ============ Đơn hàng ============ -->
+      <section id="view-orders" class="view" hidden>
+        <div id="orderFilter" class="chips"></div>
+        <div class="panel">
+          <div class="table-wrap"><table class="table" id="orderTable"></table></div>
+        </div>
+      </section>
+
+      <!-- ============ Khách hàng ============ -->
+      <section id="view-users" class="view" hidden>
+        <div class="panel">
+          <div class="table-wrap"><table class="table" id="userTable"></table></div>
+        </div>
+      </section>
+
+      <!-- ============ Giám sát ============ -->
+      <section id="view-system" class="view" hidden>
+        <p class="muted system-note">Tất cả công cụ quản trị đều đi qua Nginx với HTTPS và chỉ mở trên máy local (127.0.0.1).</p>
+        <div id="systemGrid" class="system-grid"></div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Form thêm / sửa sản phẩm -->
+  <dialog id="productDialog" class="modal">
+    <form id="productForm" novalidate>
+      <div class="modal-head">
+        <h2 id="productDialogTitle">Thêm sản phẩm</h2>
+        <button type="button" class="icon-btn" id="closeProductDialog" aria-label="Đóng">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+
+      <div class="modal-body form-grid">
+        <div class="field span-2">
+          <label for="pName">Tên sản phẩm</label>
+          <input type="text" id="pName" required minlength="2" maxlength="200">
+        </div>
+        <div class="field">
+          <label for="pCategory">Danh mục</label>
+          <select id="pCategory" required></select>
+        </div>
+        <div class="field">
+          <label for="pImage">Ảnh minh họa</label>
+          <select id="pImage"></select>
+        </div>
+        <div class="field">
+          <label for="pPrice">Giá bán (₫)</label>
+          <input type="number" id="pPrice" required min="0" max="9999999999" step="1000">
+        </div>
+        <div class="field">
+          <label for="pStock">Tồn kho</label>
+          <input type="number" id="pStock" required min="0" max="100000" step="1">
+        </div>
+        <div class="field span-2">
+          <label for="pDescription">Mô tả</label>
+          <textarea id="pDescription" rows="3" maxlength="2000"></textarea>
+        </div>
+        <label class="switch span-2">
+          <input type="checkbox" id="pActive" checked>
+          <span>Đang bán (hiển thị trên cửa hàng)</span>
+        </label>
+        <div class="image-preview span-2"><img id="pPreview" src="/images/products/box.svg" alt="Xem trước ảnh"></div>
+        <p id="productError" class="form-error span-2" role="alert"></p>
+      </div>
+
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" id="cancelProduct">Hủy</button>
+        <button type="submit" class="btn btn-primary" id="saveProduct">Lưu sản phẩm</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toastContainer" class="toasts" aria-live="polite"></div>
+</body>
+</html>
